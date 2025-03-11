@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 
 const PollForm = () => {
@@ -5,24 +6,81 @@ const PollForm = () => {
   const [options, setOptions] = useState([""]);
   const [expiresAt, setExpiresAt] = useState("1h");
   const [hideResults, setHideResults] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [pollLink, setPollLink] = useState("");
 
   const addOption = () => setOptions([...options, ""]);
+
   const handleOptionChange = (index: number, value: string) => {
     const newOptions = [...options];
     newOptions[index] = value;
     setOptions(newOptions);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({ question, options, expiresAt, hideResults });
+
+    if (!question.trim() || options.some((opt) => !opt.trim())) {
+      setMessage("Question and all options are required.");
+      return;
+    }
+
+    setLoading(true);
+    setMessage("");
+    setPollLink("");
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/polls`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            question,
+            options: options.map((opt) => ({ choice: opt, votes: 0 })),
+            expiresAt,
+            hideResults,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage("Poll created successfully!");
+        setPollLink(data.link);
+        setQuestion("");
+        setOptions([""]);
+        setExpiresAt("1h");
+        setHideResults(false);
+      } else {
+        setMessage(data.message || "Failed to create poll.");
+      }
+    } catch (error) {
+      console.log(error);
+      setMessage("An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCopyLink = () => {
+    if (pollLink) {
+      navigator.clipboard.writeText(pollLink);
+      setMessage("Poll link copied to clipboard!");
+    }
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md max-w-5xl mx-auto ">
       <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-        Create a Poll
+        Create A Poll
       </h2>
+      {message && <p className="text-sm text-red-500 mb-2">{message}</p>}
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="text"
@@ -70,11 +128,33 @@ const PollForm = () => {
 
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
+          className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 disabled:bg-gray-400"
+          disabled={loading}
         >
-          Create Poll
+          {loading ? "Creating..." : "Create Poll"}
         </button>
       </form>
+
+      {/* Display Poll Link & Share Option */}
+      {pollLink && (
+        <div className="mt-4 p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
+          <p className="text-sm text-gray-700 dark:text-gray-300">
+            Your poll is live!
+          </p>
+          <input
+            type="text"
+            value={pollLink}
+            readOnly
+            className="w-full mt-2 px-3 py-2 border rounded-md dark:bg-gray-600 dark:text-white"
+          />
+          <button
+            onClick={handleCopyLink}
+            className="mt-2 bg-green-500 text-white py-1 px-3 rounded-md hover:bg-green-600"
+          >
+            Copy Poll Link
+          </button>
+        </div>
+      )}
     </div>
   );
 };

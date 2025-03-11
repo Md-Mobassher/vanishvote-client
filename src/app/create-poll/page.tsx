@@ -1,7 +1,9 @@
+import PollForm from "@/components/ui/PollForm";
+
 const CreatePollPage = () => {
   return (
-    <div>
-      <h1>This is CreatePollPage component</h1>
+    <div className="container mx-auto px-4 py-10">
+      <PollForm />
     </div>
   );
 };

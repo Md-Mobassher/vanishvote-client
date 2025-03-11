@@ -4,7 +4,7 @@
 
 ## Deployment
 
-- **Live Link**: [VanishVote]()
+- **Live Link**: [VanishVote](https://vanishvote-frontend-tau.vercel.app)
 
 ---
 

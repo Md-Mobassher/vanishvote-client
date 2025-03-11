@@ -9,9 +9,9 @@ const HomePage = async () => {
     <div className="container mx-auto px-4 py-10">
       <div className="grid md:grid-cols-2 grid-cols-1 md:gap-10  gap-5">
         {polls &&
-          polls?.data?.map((poll: Poll) => (
-            <PollCard key={poll?._id} {...poll} />
-          ))}
+          polls?.data
+            ?.slice(0, 6)
+            .map((poll: Poll) => <PollCard key={poll?._id} {...poll} />)}
       </div>
     </div>
   );

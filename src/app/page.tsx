@@ -2,7 +2,9 @@ import PollCard from "@/components/ui/PollCard";
 import { Poll } from "@/types";
 
 const HomePage = async () => {
-  const data = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/polls`);
+  const data = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/polls`, {
+    cache: "no-store",
+  });
   const polls = await data.json();
 
   return (

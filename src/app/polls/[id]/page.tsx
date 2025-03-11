@@ -3,7 +3,10 @@ import PollCard from "@/components/ui/PollCard";
 
 const PollDetails = async ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;
-  const poll = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/polls/${id}`);
+  const poll = await fetch(
+    `${process.env.NEXT_PUBLIC_SERVER_URL}/polls/${id}`,
+    { cache: "no-store" }
+  );
   const { data } = await poll.json();
   console.log(poll);
   return (

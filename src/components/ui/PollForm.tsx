@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Swal from "sweetalert2";
 
 const PollForm = () => {
   const [question, setQuestion] = useState("");
@@ -7,7 +8,6 @@ const PollForm = () => {
   const [expiresAt, setExpiresAt] = useState("1h");
   const [hideResults, setHideResults] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
   const [pollLink, setPollLink] = useState("");
 
   const addOption = () => setOptions([...options, ""]);
@@ -22,12 +22,15 @@ const PollForm = () => {
     e.preventDefault();
 
     if (!question.trim() || options.some((opt) => !opt.trim())) {
-      setMessage("Question and all options are required.");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Question and all options are required.",
+      });
       return;
     }
 
     setLoading(true);
-    setMessage("");
     setPollLink("");
 
     try {
@@ -50,18 +53,22 @@ const PollForm = () => {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage("Poll created successfully!");
+        Swal.fire(
+          "Created!",
+          data.message || "Poll created successfully!",
+          "success"
+        );
         setPollLink(data.link);
         setQuestion("");
         setOptions([""]);
         setExpiresAt("1h");
         setHideResults(false);
       } else {
-        setMessage(data.message || "Failed to create poll.");
+        Swal.fire("Error!", data.message || "Failed to create poll.", "error");
       }
     } catch (error) {
       console.log(error);
-      setMessage("An error occurred. Please try again.");
+      Swal.fire("Error!", "An error occurred. Please try again.", "error");
     } finally {
       setLoading(false);
     }
@@ -70,7 +77,7 @@ const PollForm = () => {
   const handleCopyLink = () => {
     if (pollLink) {
       navigator.clipboard.writeText(pollLink);
-      setMessage("Poll link copied to clipboard!");
+      Swal.fire("Copied!", "Poll link copied to clipboard.", "success");
     }
   };
 
@@ -79,7 +86,6 @@ const PollForm = () => {
       <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
         Create A Poll
       </h2>
-      {message && <p className="text-sm text-red-500 mb-2">{message}</p>}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <input

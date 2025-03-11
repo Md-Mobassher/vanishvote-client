@@ -25,12 +25,6 @@ const Header = () => {
           >
             View Polls
           </Link>
-          <Link
-            href="/about"
-            className="text-gray-700 dark:text-gray-300 hover:text-blue-500"
-          >
-            About
-          </Link>
         </nav>
         <ThemeToggleButton />
       </div>
